@@ -13,7 +13,7 @@ commands:
                 unzip awscliv2.zip
                 sudo ./aws/install
 
-  notify-onFail:
+  notify-onfail:
     steps:
       - slack/notify:
           event: fail
@@ -77,6 +77,8 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      - notify-onfail
+      - notify-onsuccess
 
   build-backend:
     docker:
@@ -190,6 +192,8 @@ jobs:
 
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - notify-onfail
+      - notify-onsuccess
 
   configure-infrastructure:
     docker:
@@ -220,6 +224,9 @@ jobs:
             ansible-playbook -i project/.circleci/ansible/inventory.txt configure-server.yml
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+          
+      - notify-onfail
+      - notify-onsuccess
 
   # run-migrations:
   #   docker:
