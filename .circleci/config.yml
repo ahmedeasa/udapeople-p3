@@ -33,6 +33,7 @@ commands:
             # aws s3 rb s3://udapeople-${workflowId} --force  
             aws cloudformation delete-stack --stack-name udapeople-backend-${workflowId}
             aws cloudformation delete-stack --stack-name udapeople-frontend-${workflowId}
+            echo
 
 #   revert-migrations:
 #     description: Revert the last migration if successfully run in the current workflow.
@@ -203,7 +204,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_JOB_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_JOB_ID:0:7}"
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_JOB_ID:0:7}" \
               --tags project=udapeople  
       - run:
           name: Add back-end ip to ansible inventory
@@ -357,18 +358,18 @@ cleanup:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      # - build-frontend
+      # - build-backend
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      - deploy-infrastructure #:
+          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           # filters:
           #   branches:
               # only: [test-feature-branch]
