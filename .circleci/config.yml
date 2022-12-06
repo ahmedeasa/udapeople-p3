@@ -211,7 +211,7 @@ jobs:
           command: |       
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_JOB_ID:0:7}" \
+            --filters "Name=tag:project,Values=udapeople" \
             --output text >> .circleci/ansible/inventory.txt  
       - persist_to_workspace:
           root: ~/
@@ -230,6 +230,12 @@ jobs:
           fingerprints: ["39:91:a0:2b:52:18:1d:d2:f0:f2:0a:03:97:85:8e:67"]
       - attach_workspace:
           at: ~/
+
+      - run:
+          name: check-inventory-file
+          command: |
+            cat inventory.txt
+
       - run:
           name: Install dependencies
           command: |
