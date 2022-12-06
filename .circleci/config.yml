@@ -220,27 +220,26 @@ jobs:
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_JOB_ID:0:5}"
 
-  # configure-infrastructure:
-  #   docker:
-  #     - image: cimg/python:3.11.0
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints: ["39:91:a0:2b:52:18:1d:d2:f0:f2:0a:03:97:85:8e:67"]
-  #     - install_ansible
-  #     - attach_workspace:
-  #         at: ~/
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     # Here's where you will add some code to rollback on failure      
+  configure-infrastructure:
+    docker:
+      - image: cimg/python:3.11.0
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["39:91:a0:2b:52:18:1d:d2:f0:f2:0a:03:97:85:8e:67"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+      - destroy-environment:
+          workflowId: ${CIRCLE_WORKFLOW_JOB_ID:0:5}"
 
   # run-migrations:
   #   docker:
