@@ -197,7 +197,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: python:3.7-alpine3.11 #cimg/python:3.11.0
+      - image: cimg/python:3.11.0
     steps:
       - checkout
       - install_awscli
@@ -206,22 +206,22 @@ jobs:
       - attach_workspace:
           at: ~/
 
-      - run:
-          name: check-inventory-file
-          command: |
-            ls ~/
-            ls ~/project
-            cat ~/project/.circleci/ansible/inventory.txt
+      # - run:
+      #     name: check-inventory-file
+      #     command: |
+      #       ls ~/
+      #       ls ~/project
+      #       cat ~/project/.circleci/ansible/inventory.txt
 
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
+            python3 -m pip install --user ansible
       - run:
           name: Configure server
           command: |
             cd .circleci/ansible
-            ansible-playbook -i project/.circleci/ansible/inventory.txt configure-server.yml
+            ansible-playbook -i ~/project/.circleci/ansible/inventory.txt configure-server.yml
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
