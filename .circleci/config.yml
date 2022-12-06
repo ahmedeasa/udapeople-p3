@@ -226,6 +226,7 @@ jobs:
       - image: cimg/python:3.11.0
     steps:
       - checkout
+      - install_awscli
       - add_ssh_keys:
           fingerprints: ["39:91:a0:2b:52:18:1d:d2:f0:f2:0a:03:97:85:8e:67"]
       - attach_workspace:
@@ -234,7 +235,7 @@ jobs:
       - run:
           name: check-inventory-file
           command: |
-            cat inventory.txt
+            cat project/.circleci/ansible/inventory.txt
 
       - run:
           name: Install dependencies
@@ -244,7 +245,7 @@ jobs:
           name: Configure server
           command: |
             cd .circleci/ansible
-            ansible-playbook -i inventory.txt configure-server.yml
+            ansible-playbook -i project/.circleci/ansible/inventory.txt configure-server.yml
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_JOB_ID:0:7}
 
