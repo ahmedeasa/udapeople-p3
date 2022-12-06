@@ -1,4 +1,5 @@
 ---
+
 - name: "configuration play." 
   hosts: web
   user: ubuntu
@@ -39,4 +40,4 @@
     - TYPEORM_MIGRATIONS_DIR: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
 
   roles:
-    configure-server
+    - configure-server
