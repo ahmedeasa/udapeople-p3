@@ -170,14 +170,14 @@ jobs:
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
               --tags project=udapeople 
-      - run:
-          name: Ensure front-end infrastructure exist
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --tags project=udapeople  
+      # - run:
+      #     name: Ensure front-end infrastructure exist
+      #     command: |
+      #       aws cloudformation deploy \
+      #         --template-file .circleci/files/frontend.yml \
+      #         --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+      #         --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+      #         --tags project=udapeople  
       - run:
           name: Add back-end ip to ansible inventory
           command: |       
@@ -209,9 +209,9 @@ jobs:
       - run:
           name: check-inventory-file
           command: |
-            ls
-            ls project
-            cat project/.circleci/ansible/inventory.txt
+            ls ~/
+            ls ~/project
+            cat /~project/.circleci/ansible/inventory.txt
 
       - run:
           name: Install dependencies
@@ -224,7 +224,7 @@ jobs:
             ansible-playbook -i project/.circleci/ansible/inventory.txt configure-server.yml
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
-          
+
       - notify-onfail
       - notify-onsuccess
 
