@@ -13,12 +13,18 @@ commands:
                 unzip awscliv2.zip
                 sudo ./aws/install
 
-  install_ansible:
+  notify-onFail:
     steps:
-      - run:
-          name: install ansible
-          command: |
-            apk add --update ansible
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+
+
+  notify-onsuccess:
+    steps:
+      - slack/notify:
+          event: pass
+          template: basic_success_1
 
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -71,42 +77,6 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-
-      - slack/notify:
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "front-end build passed",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
-          event: pass
-
-      - slack/notify:
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "front-end build Failed!!",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
-          event: fail
 
   build-backend:
     docker:
@@ -195,16 +165,16 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_JOB_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_JOB_ID:0:7}"  \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
               --tags project=udapeople 
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_JOB_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_JOB_ID:0:7}" \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople  
       - run:
           name: Add back-end ip to ansible inventory
@@ -219,7 +189,7 @@ jobs:
             - project/.circleci/ansible/inventory.txt
 
       - destroy-environment:
-          workflowId: ${CIRCLE_WORKFLOW_JOB_ID:0:7}
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
   configure-infrastructure:
     docker:
@@ -235,6 +205,8 @@ jobs:
       - run:
           name: check-inventory-file
           command: |
+            ls
+            ls project
             cat project/.circleci/ansible/inventory.txt
 
       - run:
@@ -247,7 +219,7 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i project/.circleci/ansible/inventory.txt configure-server.yml
       - destroy-environment:
-          workflowId: ${CIRCLE_WORKFLOW_JOB_ID:0:7}
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
   # run-migrations:
   #   docker:
