@@ -12,6 +12,16 @@ commands:
                 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
                 unzip awscliv2.zip
                 sudo ./aws/install
+  
+  install_ansible:
+    steps:
+      - run:
+          name: install ansible
+          command:  |
+               sudo apt update
+               sudo apt install software-properties-common
+               sudo add-apt-repository --yes --update ppa:ansible/ansible
+               sudo apt install ansible
 
   notify-onfail:
     steps:
@@ -201,15 +211,11 @@ jobs:
     steps:
       - checkout
       - install_awscli
+      - install_ansible
       - add_ssh_keys:
           fingerprints: ["39:91:a0:2b:52:18:1d:d2:f0:f2:0a:03:97:85:8e:67"]
       - attach_workspace:
           at: ~/
-
-      - run:
-          name: Install dependencies
-          command: |
-            python3 -m pip install --user ansible
       - run:
           name: Configure server
           command: |
