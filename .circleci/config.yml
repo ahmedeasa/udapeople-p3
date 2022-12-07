@@ -39,7 +39,7 @@ commands:
             # aws s3 rb s3://udapeople-${workflowId} --force  
             aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.workflowId>>
             aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.workflowId>>
-            echo  udapeople-frontend-<<parameters.workflowId>>
+            aws s3 rm s3://udapeople-<<parameters.workflowId>> --recursive
 
 #   revert-migrations:
 #     description: Revert the last migration if successfully run in the current workflow.
@@ -183,7 +183,7 @@ jobs:
           command: |       
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:project,Values=udapeople" \
+            --filters "Name=tag:Name,Values=backend-"${CIRCLE_WORKFLOW_ID:0:7}"" \
             --output text >> .circleci/ansible/inventory.txt  
       - persist_to_workspace:
           root: ~/
@@ -197,7 +197,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: cimg/python:3.11.0
+      - image: cimg/base:stable
     steps:
       - checkout
       - install_awscli
@@ -205,13 +205,6 @@ jobs:
           fingerprints: ["39:91:a0:2b:52:18:1d:d2:f0:f2:0a:03:97:85:8e:67"]
       - attach_workspace:
           at: ~/
-
-      # - run:
-      #     name: check-inventory-file
-      #     command: |
-      #       ls ~/
-      #       ls ~/project
-      #       cat ~/project/.circleci/ansible/inventory.txt
 
       - run:
           name: Install dependencies
@@ -221,6 +214,7 @@ jobs:
           name: Configure server
           command: |
             cd .circleci/ansible
+            cat inventory.txt
             ansible-playbook -i ~/project/.circleci/ansible/inventory.txt configure-server.yml
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -358,7 +352,7 @@ workflows:
           # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           # filters:
           #   branches:
-              # only: [test-feature-branch]
+              # only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       # - run-migrations:
