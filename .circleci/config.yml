@@ -61,6 +61,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
+            curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>
             SUCCESS = $(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>)
             SUCCESS = 1
             if(( $SUCCESS==1 )); 
@@ -260,6 +261,8 @@ jobs:
     steps:
       - checkout 
       - install_awscli
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: Get backend url
           command: |
@@ -270,34 +273,42 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo api url= "${API_URL}" >>frontend/.env
             cat frontend/.env
-
+      - run:
+          name: install dependencies
+          command:  |
+              cd frontend
+              npm install
       - run:
           name: Deploy frontend objects
           command: |
             cd frontend
-            npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
                     
-  # deploy-backend:
-  #   docker:
-  #     # Docker image here that supports Ansible
-  #   steps:
-  #     # Checkout code from git
-  #     # Add ssh keys with fingerprint
-  #     # attach workspace
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Deploy backend
-  #         command: |
-  #           # your code here
-  #     # Here's where you will add some code to rollback on failure  
+  deploy-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - install_awscli
+      - install_ansible
+      - add_ssh_keys:
+          fingerprints: ["39:91:a0:2b:52:18:1d:d2:f0:f2:0a:03:97:85:8e:67"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            cd backend
+            npm install
+      - run:
+          name: Deploy backend
+          command: |
+            # your code here
+      # Here's where you will add some code to rollback on failure  
 
   # smoke-test:
   #   docker:
@@ -360,27 +371,27 @@ cleanup:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
+      # - build-frontend
+      # - build-backend
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     filters:
+      #       branches:
+      #         only: [master]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      - run-migrations #:
+          # requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
       # - deploy-backend:
       #     requires: [run-migrations]
       # - smoke-test:
