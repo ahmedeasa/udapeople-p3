@@ -62,14 +62,14 @@ commands:
           when: on_fail
           command: |
             curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>
-            SUCCESS = $(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>)
-            SUCCESS = 1
-            if(( $SUCCESS==1 )); 
-            then
-                cd ~/project/backend
-                npm install
-                npm run migration:revert
-            fi
+            # SUCCESS = $(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>)
+            # SUCCESS = 1
+            # if(( $SUCCESS==1 )); 
+            # then
+            #     cd ~/project/backend
+            #     npm install
+            #     npm run migration:revert
+            # fi
             
 jobs:
   build-frontend:
