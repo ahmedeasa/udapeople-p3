@@ -62,14 +62,13 @@ commands:
           when: on_fail
           command: |
             curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>
-            # SUCCESS = $(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>)
-            # SUCCESS = 1
-            # if(( $SUCCESS==1 )); 
-            # then
-            #     cd ~/project/backend
-            #     npm install
-            #     npm run migration:revert
-            # fi
+            SUCCESS=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>)
+            if(( $SUCCESS == 1 )); 
+            then
+                cd ~/project/backend
+                npm install
+                npm run migration:revert
+            fi
             
 jobs:
   build-frontend:
@@ -256,6 +255,7 @@ jobs:
           name: saving value
           command: |  
               curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1
+              echo https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1
               exit 1
       - revert-migrations:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
