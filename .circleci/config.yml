@@ -63,7 +63,7 @@ commands:
           command: |
             curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>
             SUCCESS=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>)
-            if(( $SUCCESS == 1 )); 
+            if(( $SUCCESS == "1" )); 
             then
                 cd ~/project/backend
                 npm install
