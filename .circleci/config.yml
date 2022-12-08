@@ -254,7 +254,9 @@ jobs:
       #         fi
       - run:
           name: saving value
-          command: curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1
+          command: |  
+              curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1
+              exit 1
       - revert-migrations:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       # - destroy-environment:
