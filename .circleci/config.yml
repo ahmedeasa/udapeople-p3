@@ -274,11 +274,11 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP= $(aws ec2 describe-instances \
+            BACKEND_IP= $(aws ec2 describe-instances \
                 --query 'Reservations[*].Instances[*].PublicIpAddress' \
                 --filters "Name=tag:Name,Values=backend-"${CIRCLE_WORKFLOW_ID:0:7}"" \
                 --output text)
-            export API_URL="http://${BACKEND_IP}:3030"
+            API_URL="http://${BACKEND_IP}:3030"
             echo api url= "${API_URL}" >>frontend/.env
             cat frontend/.env
       - run:
@@ -341,10 +341,10 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - run:
-          name: Install dependencies
-          command: |
-            # your code here
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       # your code here
       - run:
           name: Get backend url
           command: |
