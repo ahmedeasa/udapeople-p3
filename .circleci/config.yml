@@ -61,7 +61,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>)
+            SUCCESS = $(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>)
             SUCCESS = 1
             if(( $SUCCESS==1 )); 
             then
@@ -233,6 +233,7 @@ jobs:
       - image:  circleci/node:13.8.0
     steps:
       - checkout
+      - install_awscli
       - run:
           name: Run migrations
           command: |
