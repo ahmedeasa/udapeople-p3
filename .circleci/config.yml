@@ -62,8 +62,7 @@ commands:
           when: on_fail
           command: |
             SUCCESS=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>)
-            echo $SUCCESS
-            if(( $SUCCESS == "1" )); 
+            if [[ $SUCCESS == *"1"* ]]; 
             then
                 cd ~/project/backend
                 npm install
