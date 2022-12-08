@@ -233,27 +233,32 @@ jobs:
     docker:
       - image:  circleci/node:13.8.0
     steps:
-      - checkout
-      - install_awscli
+      # - checkout
+      # - install_awscli
+      # - restore_cache:
+      #     keys: [backend-build]
+      # - run:
+      #     name: Run migrations
+      #     command: |
+      #       cd backend
+      #       npm install
+      #       # Run and save the migration output
+      #       npm run migrations > migrations_dump.txt
+      # - run:
+      #     name: Send migration results to memstash
+      #     command: |
+      #        if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+      #         then
+      #             # using  immanuel
+      #             curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1
+      #         fi
       - run:
-          name: Run migrations
-          command: |
-            cd backend
-            npm install
-            # Run and save the migration output
-            npm run migrations > migrations_dump.txt
-      - run:
-          name: Send migration results to memstash
-          command: |
-             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
-              then
-                  # using  immanuel
-                  curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1
-              fi
+          name: saving value
+          command: curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1
       - revert-migrations:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
-      - destroy-environment:
-          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
   deploy-frontend:
     docker:
