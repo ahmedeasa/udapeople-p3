@@ -61,8 +61,8 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>
             SUCCESS=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>)
+            echo $SUCCESS
             if(( $SUCCESS == "1" )); 
             then
                 cd ~/project/backend
