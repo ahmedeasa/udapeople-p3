@@ -8,12 +8,16 @@
   apt:
     upgrade: yes
 
-- name: installing nodejs, npm 
+- name: adding nodejs from node source
+  become: true
+  shell: |
+    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+
+- name: installing nodejs 13
   apt:
     name: 
       - nodejs
-      - npm
-    state: present
+    state: latest
     update_cache: true
 
 
