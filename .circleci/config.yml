@@ -309,7 +309,7 @@ jobs:
                     
   deploy-backend:
     docker:
-      - image: circleci/node:13.8.0 #cimg/base:stable
+      - image: circleci/node:17.2-buster-browsers-legacy #cimg/base:stable
     steps:
       - checkout
       # - install_node_npm
