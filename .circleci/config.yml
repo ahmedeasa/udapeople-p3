@@ -321,11 +321,15 @@ jobs:
             cd backend
             npm install
       - run:
-          name: packaging backend files
+          name: building
           command: |
             cd backend
             npm run build
-            tar -czf artifact.tar.gz dist/* package/*
+      - run:
+          name: packaging backend files
+          command: |
+            cd backend
+            tar -czf artifact.tar.gz dist/* package*
             cd ..
             cp ./backend/artifact.tar.gz ./ansible/roles/deploy/files
 
@@ -414,7 +418,6 @@ cleanup:
     docker:
       - image: cimg/base:stable
     steps:
-      
       - run:
           name: Get old stack workflow id
           command: |
@@ -426,40 +429,36 @@ cleanup:
           command: |
                 if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
                 then
-                  aws cloudformation deploy \
-                  --template-file .circleci/files/cloudfront.yml \
-                  --stack-name InitialStack \
-                  --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
-                  --tags project=udapeople
+
                 fi
             
 
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
+      # - build-frontend
+      # - build-backend
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     filters:
+      #       branches:
+      #         only: [master]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      - deploy-backend #:
+          # requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
