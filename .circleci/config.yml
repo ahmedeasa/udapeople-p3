@@ -313,6 +313,9 @@ jobs:
     steps:
       - checkout
       # - install_node_npm
+      - run:
+          name: install typescript
+          command: npm install typescript -g
       - install_awscli
       - install_ansible
       - add_ssh_keys:
