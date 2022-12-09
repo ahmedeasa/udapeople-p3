@@ -22,6 +22,13 @@ commands:
                sudo apt install software-properties-common
                sudo add-apt-repository --yes --update ppa:ansible/ansible
                sudo apt install ansible
+  install_node_npm:
+    steps:
+      - run:
+          name: install nodejs and npm
+          command: |
+            sudo apt update
+            sudo apt install nodejs npm -y
 
   notify-onfail:
     steps:
@@ -264,9 +271,10 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/base:stable #circleci/node:13.8.0
     steps:
       - checkout 
+      - install_node_npm
       - install_awscli
       - restore_cache:
           keys: [frontend-build]
@@ -297,9 +305,10 @@ jobs:
                     
   deploy-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/base:stable
     steps:
       - checkout
+      - install_node_npm
       - install_awscli
       - install_ansible
       - add_ssh_keys:
