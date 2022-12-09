@@ -27,8 +27,9 @@ commands:
       - run:
           name: install nodejs and npm
           command: |
-            curl -sL https://deb.nodesource.com/setup_13.8 | sudo -E bash -
+            curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
             sudo apt install nodejs -y
+            node --version
 
   notify-onfail:
     steps:
