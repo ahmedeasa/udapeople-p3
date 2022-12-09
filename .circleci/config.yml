@@ -273,7 +273,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: cimg/base:stable #circleci/node:13.8.0
+      - image: cimg/deploy:2022.11.1-node #circleci/node:13.8.0
     steps:
       - checkout 
       - install_node_npm
@@ -309,7 +309,7 @@ jobs:
                     
   deploy-backend:
     docker:
-      - image: circleci/node:17.2-buster-browsers-legacy #cimg/base:stable
+      - image: cimg/deploy:2022.11.1-node #cimg/base:stable
     steps:
       - checkout
       # - install_node_npm
