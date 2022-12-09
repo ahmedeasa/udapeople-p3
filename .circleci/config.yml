@@ -309,10 +309,10 @@ jobs:
                     
   deploy-backend:
     docker:
-      - image: cimg/base:stable
+      - image: circleci/node:13.8.0 #cimg/base:stable
     steps:
       - checkout
-      - install_node_npm
+      # - install_node_npm
       - install_awscli
       - install_ansible
       - add_ssh_keys:
