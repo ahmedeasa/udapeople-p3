@@ -443,7 +443,7 @@ workflows:
       - scan-backend:
           requires: [build-backend]
       - deploy-infrastructure:
-          requires: [test-frontend, scan-backend]
+          requires: [test-backend, scan-backend]
           filters:
             branches:
               only: [master]
