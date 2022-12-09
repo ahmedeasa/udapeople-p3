@@ -337,7 +337,7 @@ jobs:
           name: Install dependencies
           command: |
             cd backend
-            npm cache clean
+            npm cache clean --force
             rm -rf node_modules
             npm install
       - run:
