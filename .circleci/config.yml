@@ -318,16 +318,18 @@ jobs:
           fingerprints: ["39:91:a0:2b:52:18:1d:d2:f0:f2:0a:03:97:85:8e:67"]
       - attach_workspace:
           at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            cd backend
-            npm install
-      - run:
-          name: building
-          command: |
-            cd backend
-            npm run build
+      - restore_cache:
+          keys: [backend-build]
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       cd backend
+      #       npm install
+      # - run:
+      #     name: building
+      #     command: |
+      #       cd backend
+      #       npm run build
       - run:
           name: packaging backend files
           command: |
