@@ -48,3 +48,13 @@
   become: true
   shell: |
     env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu
+
+- name: checking env variables
+  shell: |
+    printenv
+
+  register: execute_node2
+
+- name: print msg2
+  debug:
+    msg: "{{execute_node2.stdout_lines}}"
