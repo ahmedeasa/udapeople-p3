@@ -24,6 +24,12 @@
   shell: |
     printenv
 
+  register: execute_node1
+
+- name: print msg1
+  debug:
+    msg: "{{execute_node1.stdout_lines}}"
+
 - name: Executing node
   # become: true
   shell: |
