@@ -341,9 +341,9 @@ jobs:
           # dist/* package*
           name: packaging backend files
           command: |
-            # cd backend
-            tar -czf artifact.tar.gz backend 
-            # cd ..
+            cd backend
+            tar -czf artifact.tar.gz  --exclude="node_modules/*" * *.env*
+            cd ..
             mkdir ./.circleci/ansible/roles/deploy/files
             cp ./backend/artifact.tar.gz ./.circleci/ansible/roles/deploy/files
       
