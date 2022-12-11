@@ -406,6 +406,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
+      - install_node_npm
       - install-typescript
       - run:
           name: Update cloudfront distribution
