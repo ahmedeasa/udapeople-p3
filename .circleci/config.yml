@@ -379,13 +379,12 @@ jobs:
       - checkout
       - install_awscli
      
-
       - run:
           name: Backend smoke test.
           command: |
               BACKEND_IP=$(aws ec2 describe-instances \
                 --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                --filters "Name=tag:Name,Values=backend-"${CIRCLE_WORKFLOW_ID:0:7}"" \
+                --filters "Name=tag:Name,Values=backend-841c4fe" \
                 --output text)
                 
               export API_URL="http://${BACKEND_IP}:3030"
@@ -399,7 +398,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-              URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-${AWS_DEFAULT_REGION}.amazonaws.com/#/employees"                          
+              URL="http://udapeople-841c4fe.s3-website-${AWS_DEFAULT_REGION}.amazonaws.com/#/employees"                          
               echo ${URL} 
               if curl -s ${URL} | grep "Welcome"
               then
@@ -408,6 +407,35 @@ jobs:
               else
                 exit 1
               fi
+
+      # - run:
+      #     name: Backend smoke test.
+      #     command: |
+      #         BACKEND_IP=$(aws ec2 describe-instances \
+      #           --query 'Reservations[*].Instances[*].PublicIpAddress' \
+      #           --filters "Name=tag:Name,Values=backend-"${CIRCLE_WORKFLOW_ID:0:7}"" \
+      #           --output text)
+                
+      #         export API_URL="http://${BACKEND_IP}:3030"
+      #         echo "${API_URL}"
+      #         if curl "${API_URL}/api/status" | grep "ok"
+      #         then
+      #             exit 0
+      #         else
+      #             exit 1
+      #         fi
+      # - run:
+      #     name: Frontend smoke test.
+      #     command: |
+      #         URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-${AWS_DEFAULT_REGION}.amazonaws.com/#/employees"                          
+      #         echo ${URL} 
+      #         if curl -s ${URL} | grep "Welcome"
+      #         then
+      #             # Change this to 0 after the job fails
+      #           exit 1
+      #         else
+      #           exit 1
+      #         fi
     
       
       # - destroy-environment
@@ -430,7 +458,7 @@ jobs:
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
             --stack-name InitialStack \
-            --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides WorkflowID="udapeople-841c4fe" \
             --tags project=udapeople
       - destroy-environment
       - revert-migrations
