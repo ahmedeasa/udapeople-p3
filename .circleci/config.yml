@@ -76,13 +76,13 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            # SUCCESS=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>)
-            # if [[ $SUCCESS == *"1"* ]]; 
-            # then
+            SUCCESS=$(curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/migration_<<parameters.workflowId>>)
+            if [[ $SUCCESS == *"1"* ]]; 
+            then
                 cd ~/project/backend
                 npm install
                 npm run migrations:revert
-            # fi
+            fi
             
 jobs:
   build-frontend:
@@ -420,16 +420,16 @@ jobs:
       - notify-onfail
       - notify-onsuccess
 
-  revert-mig:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - install_node_npm
-      - install_awscli
-      - install-typescript
-      - run: exit 1
-      - revert-migrations
+  # revert-mig:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - checkout
+  #     - install_node_npm
+  #     - install_awscli
+  #     - install-typescript
+  #     - run: exit 1
+  #     - revert-migrations
 
   cleanup:
     docker:
@@ -464,33 +464,32 @@ jobs:
 workflows:
   default:
     jobs:
-      - revert-mig
-      # - build-frontend
-      # - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [master]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      # - deploy-backend :
-      #     requires: [run-migrations]
-      # - smoke-test :
-      #     requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend :
+          requires: [run-migrations]
+      - smoke-test :
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
