@@ -289,7 +289,7 @@ jobs:
                 --filters "Name=tag:Name,Values=backend-"${CIRCLE_WORKFLOW_ID:0:7}"" \
                 --output text)
             API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}" >>frontend/.env
+            echo "API_URL=${API_URL}" >>frontend/.env
             cat frontend/.env
       - run:
           name: install dependencies
@@ -378,35 +378,6 @@ jobs:
     steps:
       - checkout
       - install_awscli
-     
-      - run:
-          name: Backend smoke test.
-          command: |
-              BACKEND_IP=$(aws ec2 describe-instances \
-                --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                --filters "Name=tag:Name,Values=backend-841c4fe" \
-                --output text)
-                
-              export API_URL="http://${BACKEND_IP}:3030"
-              echo "${API_URL}"
-              if curl "${API_URL}/api/status" | grep "ok"
-              then
-                  exit 0
-              else
-                  exit 1
-              fi
-      - run:
-          name: Frontend smoke test.
-          command: |
-              URL="http://udapeople-841c4fe.s3-website-${AWS_DEFAULT_REGION}.amazonaws.com/#/employees"                          
-              echo ${URL} 
-              if curl -s ${URL} | grep "Welcome"
-              then
-                  # Change this to 0 after the job fails
-                exit 0
-              else
-                exit 1
-              fi
 
       # - run:
       #     name: Backend smoke test.
@@ -448,20 +419,16 @@ jobs:
       - image: cimg/base:stable
     steps:
       - install_awscli
-      # - run:
-      #     name: Install dependencies
-      #     command: |
-      #       # your code here
       - run:
           name: Update cloudfront distribution
           command: |
             aws cloudformation deploy \
-            --template-file .circleci/files/cloudfront.yml \
+            --template-file ./.circleci/files/cloudfront.yml \
             --stack-name InitialStack \
-            --parameter-overrides WorkflowID="udapeople-841c4fe" \
+            --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
             --tags project=udapeople
-      - destroy-environment
-      - revert-migrations
+      # - destroy-environment
+      # - revert-migrations
       - notify-onfail
       - notify-onsuccess
 
@@ -487,49 +454,31 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-backend
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - deploy-infrastructure:
-          # requires: [test-backend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [master]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # - deploy-backend :
-      #     requires: [run-migrations]
-      # - smoke-test
-
-      # - build-frontend
-      # - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [master]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      # - deploy-backend :
-      #     requires: [run-migrations]
-      - smoke-test #:
-          # requires: [deploy-backend, deploy-frontend]
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend :
+          requires: [run-migrations]
+      - smoke-test :
+          requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
       # - cleanup:
