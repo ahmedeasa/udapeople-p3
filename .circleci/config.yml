@@ -314,9 +314,9 @@ jobs:
     steps:
       - checkout
       - install_node_npm
-      - run:
-          name: install typescript
-          command: npm install typescript -g
+      # - run:
+      #     name: install typescript
+      #     command: npm install typescript -g
       - install_awscli
       - install_ansible
       - add_ssh_keys:
@@ -346,6 +346,18 @@ jobs:
             cd ..
             mkdir ./.circleci/ansible/roles/deploy/files
             cp ./backend/artifact.tar.gz ./.circleci/ansible/roles/deploy/files
+      
+
+      # --------- to be removed --------------
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |       
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:Name,Values=backend-"${CIRCLE_WORKFLOW_ID:0:7}"" \
+            --output text >> .circleci/ansible/inventory.txt 
+      # --------- to be removed --------------
+
 
       - run:
           name: Deploy backend
@@ -461,36 +473,36 @@ workflows:
       #     requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
-      # - deploy-backend:
+      - deploy-backend #:
       #     requires: [run-migrations]
       # - smoke-test
 
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend :
-          requires: [run-migrations]
-      - smoke-test :
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
+      # - build-frontend
+      # - build-backend
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     filters:
+      #       branches:
+      #         only: [master]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      # - deploy-backend :
+      #     requires: [run-migrations]
+      # - smoke-test :
+      #     requires: [deploy-backend, deploy-frontend]
+      # - cloudfront-update:
+      #     requires: [smoke-test]
       # - cleanup:
       #     requires: [cloudfront-update]
