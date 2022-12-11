@@ -362,7 +362,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - install_typescript
+      - install-typescript
       - run:
           name: install typescript
           command: sudo npm install typescript@latest -g
@@ -406,7 +406,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - install_typescript
+      - install-typescript
       - run:
           name: Update cloudfront distribution
           command: |
