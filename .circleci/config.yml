@@ -30,6 +30,12 @@ commands:
             curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
             sudo apt install nodejs -y
             node --version
+  
+  install_typescript:
+    steps:
+      - run:
+          name: install typescript
+          command: sudo npm install typescript@latest -g
 
   notify-onfail:
     steps:
@@ -356,7 +362,10 @@ jobs:
     steps:
       - checkout
       - install_awscli
-
+      - install_typescript
+      - run:
+          name: install typescript
+          command: sudo npm install typescript@latest -g
       - run:
           name: Backend smoke test.
           command: |
@@ -398,6 +407,7 @@ jobs:
     steps:
       - checkout
       - install_awscli
+      - install_typescript
       - run:
           name: Update cloudfront distribution
           command: |
@@ -415,6 +425,9 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
+      - checkout
+      - install_awscli
+      - install_typescript
       - run:
           name: Get old stack workflow id
           command: |
