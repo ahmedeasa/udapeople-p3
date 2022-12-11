@@ -348,15 +348,15 @@ jobs:
             cp ./backend/artifact.tar.gz ./.circleci/ansible/roles/deploy/files
       
 
-      # --------- to be removed --------------
-      - run:
-          name: Add back-end ip to ansible inventory
-          command: |       
-            aws ec2 describe-instances \
-            --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:Name,Values=backend-5096119" \
-            --output text >> .circleci/ansible/inventory.txt 
-      # --------- to be removed --------------
+      # # --------- to be removed --------------
+      # - run:
+      #     name: Add back-end ip to ansible inventory
+      #     command: |       
+      #       aws ec2 describe-instances \
+      #       --query 'Reservations[*].Instances[*].PublicIpAddress' \
+      #       --filters "Name=tag:Name,Values=backend-5096119" \
+      #       --output text >> .circleci/ansible/inventory.txt 
+      # # --------- to be removed --------------
 
 
       - run:
@@ -464,17 +464,17 @@ workflows:
       #     requires: [build-backend]
       # - scan-backend:
       #     requires: [build-backend]
-      # - deploy-infrastructure:
-      #     requires: [test-backend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [master]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      - deploy-backend #:
-      #     requires: [run-migrations]
+      - deploy-infrastructure:
+          # requires: [test-backend, scan-backend]
+          filters:
+            branches:
+              only: [master]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-backend :
+          requires: [run-migrations]
       # - smoke-test
 
       # - build-frontend
