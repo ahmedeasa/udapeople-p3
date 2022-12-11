@@ -314,9 +314,9 @@ jobs:
     steps:
       - checkout
       - install_node_npm
-      # - run:
-      #     name: install typescript
-      #     command: npm install typescript -g
+      - run:
+          name: install typescript
+          command: npm install typescript -g
       - install_awscli
       - install_ansible
       - add_ssh_keys:
@@ -368,8 +368,8 @@ jobs:
 
       - notify-onfail
       - notify-onsuccess
-      - destroy-environment
-      - revert-migrations
+      # - destroy-environment
+      # - revert-migrations
 
 
   smoke-test:
@@ -410,8 +410,8 @@ jobs:
               fi
     
       
-      - destroy-environment
-      - revert-migrations
+      # - destroy-environment
+      # - revert-migrations
       - notify-onfail
       - notify-onsuccess
 
