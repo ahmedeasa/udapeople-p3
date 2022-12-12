@@ -50,6 +50,13 @@ commands:
           event: pass
           template: basic_success_1
 
+    steps:
+      - run:
+          name: saving key value
+          command: |  
+              curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1 -d "content-length: 4"
+
+
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -263,10 +270,10 @@ jobs:
                   # using  immanuel
                   curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1
               fi
-      - run:
-          name: saving value
-          command: |  
-              curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1 -d "content-length: 4"
+      # - run:
+      #     name: saving value
+      #     command: |  
+      #         curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1 -d "content-length: 4"
       - notify-onfail
       - notify-onsuccess
 
@@ -411,7 +418,7 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-              touch oldworkflowId.txt
+              # touch oldworkflowId.txt
               export OldWorkflowID=$(aws cloudformation \
               list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
               --no-paginate --output text)
@@ -419,11 +426,15 @@ jobs:
               echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
               export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+              curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/oldWorkflowId_${CIRCLE_WORKFLOW_ID:0:7}/${OldWorkflowID}
+              # echo $OldWorkflowID > oldworkflowId.txt
+
               echo Stack names: "${STACKS[@]}"
-              echo $OldWorkflowID > oldworkflowId.txt
-      - save_cache:
-          paths: [oldworkflowId.txt]
-          key: oldWorkflowId-"${CIRCLE_WORKFLOW_ID:0:7}"
+              echo OldWorkflowID: "${OldWorkflowID}"
+              echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+      # - save_cache:
+      #     paths: [oldworkflowId.txt]
+      #     key: oldWorkflowId-"${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Update cloudfront distribution
           command: |
@@ -476,9 +487,9 @@ jobs:
       - install_node_npm
       - install-typescript
       
-      - restore_cache:
-          keys: 
-            - oldWorkflowId-"${CIRCLE_WORKFLOW_ID:0:7}"
+      # - restore_cache:
+      #     keys: 
+      #       - oldWorkflowId-"${CIRCLE_WORKFLOW_ID:0:7}"
       
       - run:
           name: remove initial bucket
@@ -493,7 +504,7 @@ jobs:
       - run:
           name: Remove old stacks and files
           command: |
-                export OldWorkflowID=$(cat oldworkflowId.txt)
+                export OldWorkflowID=$( curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/oldWorkflowId_${CIRCLE_WORKFLOW_ID:0:7} )
 
                 echo OldWorkflowID: "${OldWorkflowID}"
                 echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
