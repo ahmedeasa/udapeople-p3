@@ -416,7 +416,7 @@ jobs:
               echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
               export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
-              curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/oldWorkflowId_${CIRCLE_WORKFLOW_ID:0:7}/${OldWorkflowID}  -d "content-length: 4"
+              curl https://kvdb.io/SPVfAM6cgTNurxxWjgpKg3/OldWorkflowID -d ${OldWorkflowID}
               # echo $OldWorkflowID > oldworkflowId.txt
 
               echo Stack names: "${STACKS[@]}"
@@ -494,7 +494,7 @@ jobs:
       - run:
           name: Remove old stacks and files
           command: |
-                export OldWorkflowID=$( curl https://keyvalue.immanuel.co/api/KeyVal/GetValue/${kvbd_key}/oldWorkflowId_${CIRCLE_WORKFLOW_ID:0:7} )
+                export OldWorkflowID=$( curl https://kvdb.io/SPVfAM6cgTNurxxWjgpKg3/OldWorkflowID )
 
                 echo OldWorkflowID: "${OldWorkflowID}"
                 echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
