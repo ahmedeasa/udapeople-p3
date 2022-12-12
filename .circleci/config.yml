@@ -456,14 +456,26 @@ jobs:
   cleanup:
     docker:
       - image: cimg/base:stable
+    environment:
+      initialWorkflowId:  372512309232
     steps:
       - checkout
       - install_awscli
       - install_node_npm
       - install-typescript
+      
       - restore_cache:
           keys: [oldWorkflowId]
-     
+      
+      - run:
+          name: remove initial bucket
+          command: |
+                export all_buckets=$(aws s3api list-buckets --query "Buckets[].Name")
+                if [[ $all_buckets =~ $initialWorkflowId ]]
+                then
+                  aws s3 rb "s3://udapeople-${initialWorkflowId}" --force
+                fi
+  
       - run:
           name: Remove old stacks and files
           command: |
