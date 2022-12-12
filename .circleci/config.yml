@@ -263,6 +263,9 @@ jobs:
               then
                   # using  immanuel
                   curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1  -d "content-length: 4"
+              else
+                  echo migration is not successful
+                  exit 1
               fi
       - notify-onfail
       - notify-onsuccess
