@@ -423,7 +423,7 @@ jobs:
               echo $OldWorkflowID > oldworkflowId.txt
       - save_cache:
           paths: [oldworkflowId.txt]
-          key: oldWorkflowId-{{ .BuildNum  }}
+          key: oldWorkflowId-"${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Update cloudfront distribution
           command: |
@@ -478,7 +478,7 @@ jobs:
       
       - restore_cache:
           keys: 
-            - oldWorkflowId-{{ .BuildNum  }}
+            - oldWorkflowId-"${CIRCLE_WORKFLOW_ID:0:7}"
       
       - run:
           name: remove initial bucket
