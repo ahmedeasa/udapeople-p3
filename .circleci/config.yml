@@ -437,21 +437,21 @@ jobs:
       - notify-onfail
       - notify-onsuccess
 
-  temp-job:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - install_awscli
-      - run:
-          name: Get old stack workflow id
-          command: |
-              touch oldworkflowId.txt
-              export OldWorkflowID=372512309232
-              echo $OldWorkflowID > oldworkflowId.txt
-      - save_cache:
-          paths: [oldworkflowId.txt]
-          key: oldWorkflowId
+  # temp-job:
+  #   docker:
+  #     - image: cimg/base:stable
+  #   steps:
+  #     - checkout
+  #     - install_awscli
+  #     - run:
+  #         name: Get old stack workflow id
+  #         command: |
+  #             touch oldworkflowId.txt
+  #             export OldWorkflowID=372512309232
+  #             echo $OldWorkflowID > oldworkflowId.txt
+  #     - save_cache:
+  #         paths: [oldworkflowId.txt]
+  #         key: oldWorkflowId
 
   cleanup:
     docker:
@@ -459,28 +459,25 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      # - install_node_npm
-      # - install-typescript
+      - install_node_npm
+      - install-typescript
       - restore_cache:
           keys: [oldWorkflowId]
-      - run:
-          name: Get old stack workflow id
-          command: |
-              # export OldWorkflowID=$(cat oldworkflowId.txt)
-              
-              # echo OldWorkflowID: "${OldWorkflowID}"
-              # echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
-
-              export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
-              echo Stack names: "${STACKS[@]}"
+     
       - run:
           name: Remove old stacks and files
           command: |
                 export OldWorkflowID=$(cat oldworkflowId.txt)
+
                 echo OldWorkflowID: "${OldWorkflowID}"
                 echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+
+                export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+                  --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+                echo Stack names: "${STACKS[@]}"
+
                 aws s3 rb "s3://udapeople-${OldWorkflowID}" --force
+
                 for stack in "${STACKS[@]}"
                 do 
                   if [[ stack =~ "${OldWorkflowID}" ]]
@@ -488,42 +485,40 @@ jobs:
                       aws cloudformation delete-stack --stack-name stack
                   fi
                 done
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migrations
             
 
 workflows:
   default:
     jobs:
-      # - build-frontend
-      # - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [master]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      # - deploy-backend :
-      #     requires: [run-migrations]
-      # - smoke-test :
-      #     requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
-      - temp-job
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend :
+          requires: [run-migrations]
+      - smoke-test :
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
       - cleanup:
-          requires: [temp-job]
+          requires: [cloudfront-update]
+      
