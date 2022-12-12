@@ -50,12 +50,6 @@ commands:
           event: pass
           template: basic_success_1
 
-    steps:
-      - run:
-          name: saving key value
-          command: |  
-              curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1 -d "content-length: 4"
-
 
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
