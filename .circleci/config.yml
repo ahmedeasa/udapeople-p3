@@ -441,12 +441,18 @@ jobs:
     docker:
       - image: cimg/base:stable
     environment:
-      initialWorkflowId:  372512309232
+      initialWorkflowId:  "372512309232"
     steps:
+      - install_awscli
       - run: 
           name: -----
           command: |
             echo init:  $initialWorkflowId
+            export all_buckets=$(aws s3api list-buckets --query "Buckets[].Name")
+            if [[ $all_buckets =~ $initialWorkflowId ]]
+            then
+              echo exists
+            fi
       # - checkout
       # - install_awscli
       # - run:
@@ -463,7 +469,7 @@ jobs:
     docker:
       - image: cimg/base:stable
     environment:
-      initialWorkflowId:  372512309232
+      initialWorkflowId:  "372512309232"
     steps:
       - checkout
       - install_awscli
