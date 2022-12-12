@@ -437,21 +437,27 @@ jobs:
       - notify-onfail
       - notify-onsuccess
 
-  # temp-job:
-  #   docker:
-  #     - image: cimg/base:stable
-  #   steps:
-  #     - checkout
-  #     - install_awscli
-  #     - run:
-  #         name: Get old stack workflow id
-  #         command: |
-  #             touch oldworkflowId.txt
-  #             export OldWorkflowID=372512309232
-  #             echo $OldWorkflowID > oldworkflowId.txt
-  #     - save_cache:
-  #         paths: [oldworkflowId.txt]
-  #         key: oldWorkflowId
+  temp-job:
+    docker:
+      - image: cimg/base:stable
+    environment:
+      initialWorkflowId:  372512309232
+    steps:
+      - run: 
+          name: -----
+          command: |
+            echo init:  $initialWorkflowId
+      # - checkout
+      # - install_awscli
+      # - run:
+      #     name: Get old stack workflow id
+      #     command: |
+      #         touch oldworkflowId.txt
+      #         export OldWorkflowID=372512309232
+      #         echo $OldWorkflowID > oldworkflowId.txt
+      # - save_cache:
+      #     paths: [oldworkflowId.txt]
+      #     key: oldWorkflowId
 
   cleanup:
     docker:
@@ -470,6 +476,7 @@ jobs:
       - run:
           name: remove initial bucket
           command: |
+                echo $initialWorkflowId
                 export all_buckets=$(aws s3api list-buckets --query "Buckets[].Name")
                 if [[ $all_buckets =~ $initialWorkflowId ]]
                 then
@@ -502,33 +509,34 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend :
-          requires: [run-migrations]
-      - smoke-test :
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+      - temp-job
+      # - build-frontend
+      # - build-backend
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     filters:
+      #       branches:
+      #         only: [master]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      # - deploy-backend :
+      #     requires: [run-migrations]
+      # - smoke-test :
+      #     requires: [deploy-backend, deploy-frontend]
+      # - cloudfront-update:
+      #     requires: [smoke-test]
+      # - cleanup:
+      #     requires: [cloudfront-update]
       
