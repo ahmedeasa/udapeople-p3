@@ -423,7 +423,7 @@ jobs:
               echo $OldWorkflowID > oldworkflowId.txt
       - save_cache:
           paths: [oldworkflowId.txt]
-          key: oldWorkflowId
+          key: oldWorkflowId-{{ .BuildNum  }}
       - run:
           name: Update cloudfront distribution
           command: |
@@ -477,7 +477,8 @@ jobs:
       - install-typescript
       
       - restore_cache:
-          keys: [oldWorkflowId]
+          keys: 
+            - oldWorkflowId-{{ .BuildNum  }}
       
       - run:
           name: remove initial bucket
