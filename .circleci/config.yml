@@ -480,7 +480,7 @@ jobs:
                 export OldWorkflowID=$(cat oldworkflowId.txt)
                 echo OldWorkflowID: "${OldWorkflowID}"
                 echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
-                aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+                aws s3 rb "s3://udapeople-${OldWorkflowID}" --force
                 for stack in "${STACKS[@]}"
                 do 
                   if [[ stack =~ "${OldWorkflowID}" ]]
