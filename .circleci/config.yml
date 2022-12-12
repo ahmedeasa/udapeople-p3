@@ -262,12 +262,8 @@ jobs:
              if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
               then
                   # using  immanuel
-                  curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1
+                  curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1  -d "content-length: 4"
               fi
-      # - run:
-      #     name: saving value
-      #     command: |  
-      #         curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/migration_${CIRCLE_WORKFLOW_ID:0:7}/1 -d "content-length: 4"
       - notify-onfail
       - notify-onsuccess
 
@@ -420,7 +416,7 @@ jobs:
               echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
               export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
-              curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/oldWorkflowId_${CIRCLE_WORKFLOW_ID:0:7}/${OldWorkflowID}
+              curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/${kvbd_key}/oldWorkflowId_${CIRCLE_WORKFLOW_ID:0:7}/${OldWorkflowID}  -d "content-length: 4"
               # echo $OldWorkflowID > oldworkflowId.txt
 
               echo Stack names: "${STACKS[@]}"
