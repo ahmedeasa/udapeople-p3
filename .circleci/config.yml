@@ -217,6 +217,7 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       - notify-onfail
       - notify-onsuccess
+      - destroy-environment
 
   configure-infrastructure:
     docker:
@@ -238,6 +239,7 @@ jobs:
 
       - notify-onfail
       - notify-onsuccess
+      - destroy-environment
 
   run-migrations:
     docker:
@@ -272,6 +274,7 @@ jobs:
               fi
       - notify-onfail
       - notify-onsuccess
+      - destroy-environment
 
   deploy-frontend:
     docker:
@@ -305,6 +308,8 @@ jobs:
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - notify-onfail
       - notify-onsuccess
+      - destroy-environment
+      - revert-migrations
                     
   deploy-backend:
     docker:
@@ -357,6 +362,8 @@ jobs:
 
       - notify-onfail
       - notify-onsuccess
+      - destroy-environment
+      - revert-migrations
 
 
   smoke-test:
